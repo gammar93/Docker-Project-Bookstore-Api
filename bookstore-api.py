@@ -21,26 +21,49 @@ cursor = connection.cursor()
 # Create books table within sqlite db and populate with sample data
 # Execute the code below only once.
 def init_bookstore_db():
-    drop_table = 'DROP TABLE IF EXISTS bookstore_db.books;'
-    books_table = """
-    CREATE TABLE bookstore_db.books(
-    book_id INT NOT NULL AUTO_INCREMENT,
-    title VARCHAR(100) NOT NULL,
-    author VARCHAR(100),
-    is_sold BOOLEAN NOT NULL DEFAULT 0,
-    PRIMARY KEY (book_id)
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    """
-    data = """
-    INSERT INTO bookstore_db.books (title, author, is_sold)
-    VALUES
-        ("Where the Crawdads Sing", "Delia Owens", 1 ),
-        ("The Vanishing Half: A Novel", "Brit Bennett", 0),
-        ("1st Case", "James Patterson, Chris Tebbetts", 0);
-    """
-    cursor.execute(drop_table)
-    cursor.execute(books_table)
-    cursor.execute(data)
+    try:
+        connection = mysql.connection
+        cursor = connection.cursor()
+
+        # Check if the table 'books' exists
+        cursor.execute("SHOW TABLES LIKE 'books';")
+        result = cursor.fetchone()
+
+        if not result:
+            # Table doesn't exist, so create it
+            books_table = """
+            CREATE TABLE books(
+            book_id INT NOT NULL AUTO_INCREMENT,
+            title VARCHAR(100) NOT NULL,
+            author VARCHAR(100),
+            is_sold BOOLEAN NOT NULL DEFAULT 0,
+            PRIMARY KEY (book_id)
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """
+            cursor.execute(books_table)
+
+            # Insert initial data into the table
+            data = """
+            INSERT INTO books (title, author, is_sold)
+            VALUES
+                ("Where the Crawdads Sing", "Delia Owens", 1),
+                ("The Vanishing Half: A Novel", "Brit Bennett", 0),
+                ("1st Case", "James Patterson, Chris Tebbetts", 0);
+            """
+            cursor.execute(data)
+            connection.commit()
+            print("Database initialized with sample data.")
+        else:
+            # If table exists, skip creation and data insertion
+            print("Table already exists, skipping initialization.")
+
+        cursor.close()
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        connection.rollback()
+
+
 
 # Write a function named `get_all_books` which gets all books from the books table in the db,
 # and return result as list of dictionary
