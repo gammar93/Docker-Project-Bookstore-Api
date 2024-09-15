@@ -20,9 +20,13 @@ services:
     networks:
       - techpronet
     volumes:
-      - techprovol:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: always
 networks:
   techpronet:
 volumes:
-  techprovol:
+  mysql_data:
+    driver: local
   
