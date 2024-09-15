@@ -21,9 +21,6 @@ cursor = connection.cursor()
 # Create books table within sqlite db and populate with sample data
 # Execute the code below only once.
 def init_bookstore_db():
-    try:
-        connection = mysql.connection
-        cursor = connection.cursor()
 
         # Create the 'books' table only if it does not exist
         books_table = """
@@ -55,11 +52,7 @@ def init_bookstore_db():
         else:
             print("Data already exists, skipping initialization.")
 
-        cursor.close()
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        connection.rollback()
 
 
 # Write a function named `get_all_books` which gets all books from the books table in the db,
